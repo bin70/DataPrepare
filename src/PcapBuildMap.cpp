@@ -14,6 +14,8 @@
 Twist _transformSum;
 #endif
 
+using namespace file_utils;
+
 int main(int argc, char **argv){
     ArgParser args;
     if (args.parse_arg(argc, argv) == -1) 
@@ -34,9 +36,7 @@ int main(int argc, char **argv){
     TrajIO traj(args.trajFile);
 
     // octree 的网格决定了地图的分辨率, 默认3(单位m)
-    Octree::Ptr map_octree(new Octree((args.resolution)/100.0)); 
-    PointCloud::Ptr map_cloud(new PointCloud);
-    MapManager map(map_cloud, map_octree);
+    MapManager map((args.resolution)/100.0);
     
     PointCloud::Ptr cloud(new PointCloud);
     long long frameID = args.startID;
@@ -89,7 +89,7 @@ int main(int argc, char **argv){
         if(frameID > args.endID) 
             break;
 
-        consoleProgress(frameID, args);
+        consoleProgress(frameID, args.startID, args.endID);
     }
 
     saveLasFile(args.outputMap, map_cloud);

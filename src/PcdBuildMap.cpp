@@ -14,6 +14,8 @@
 Twist _transformSum;
 #endif
 
+using namespace file_utils;
+
 int main(int argc, char **argv){
     ArgParser args;
     if (args.parse_arg(argc, argv) == -1) 
@@ -25,15 +27,11 @@ int main(int argc, char **argv){
     if(args.isShow)
         viewer = new pcl::visualization::PCLVisualizer("default");
 
-    PCDReader reader;
-    reader.openPCDDir(args.pcapFile);
-
+    PCDReader reader(args.pcapFile);
     TrajIO traj(args.trajFile);
 
     // octree 的网格决定了地图的分辨率, 默认3(单位m)
-    Octree::Ptr map_octree(new Octree((args.resolution)/100.0)); 
-    PointCloud::Ptr map_cloud(new PointCloud);
-    MapManager map(map_cloud, map_octree);
+    MapManager map((args.resolution)/100.0);
     
     PointCloud::Ptr cloud(new PointCloud);
     long long frameID = args.startID;
@@ -75,7 +73,7 @@ int main(int argc, char **argv){
         #endif
         
         if(args.isShow)
-            vis_utils::ShowCloud(map_cloud, viewer);
+            vis_utils::ShowCloud(map.getMapPtr(), viewer);
 
         // 间隔几帧
         frameID += args.frameGap; 
@@ -84,10 +82,10 @@ int main(int argc, char **argv){
         if(frameID > args.endID) 
             break;
 
-        consoleProgress(frameID, args);
+        consoleProgress(frameID, args.startID, args.endID);
     }
 
-    saveLasFile(args.outputMap, map_cloud);
+    saveLasFile(args.outputMap, map.getMapPtr());
     std::cout << "地图保存至: " << args.outputMap << std::endl;
     
     return 0;

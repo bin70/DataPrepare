@@ -46,7 +46,7 @@ public:
     :   startID(-1),
         endID(-1),
         frameGap(0),
-        data_name(getFileName(traj_path))
+        data_name(file_utils::getFileName(traj_path))
     {
         assert( CheckFileExist(traj_path) );
         traj_file_.open(traj_path.c_str());
@@ -169,7 +169,7 @@ private:
             traj_file_ >> curPose.loamTrans[i];
         traj_file_ >> curPose.timestamp;
 
-        curPose.tf = euler2Transform(curPose.loamTrans);
+        curPose.tf = loam::euler2matrix(curPose.loamTrans);
         Eigen::Matrix3d r = curPose.tf.block(0, 0, 3, 3);
         Eigen::Quaterniond q(r);
         curPose.qua = q;

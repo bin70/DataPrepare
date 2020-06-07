@@ -23,9 +23,7 @@ int labelid(std::string path)
 class SemanticMap
 {
 public:
-    SemanticMap() {}
-
-    SemanticMap(PointCloud::Ptr &map_cloud, std::string map_folder)
+    SemanticMap(PointCloud::Ptr map_cloud, std::string map_folder)
     {
         std::cout << "Loading semantic map ..." << std::endl;
         loadMap(map_cloud, map_folder);
