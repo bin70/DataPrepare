@@ -1,4 +1,3 @@
-
 #ifndef _LAS_FILE_READER_
 #define _LAS_FILE_READER_
 
