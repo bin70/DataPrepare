@@ -248,14 +248,14 @@ public:
         }
 
         // 检查参数
-        if (!(file_utils::CheckFileExist(pcapFile.c_str())))
+        if (!(CheckFileExist(pcapFile.c_str())))
         {
             printf("PCAP文件: %s 不存在!\n", pcapFile.c_str());
             return -1;
         }
         if (pcap2File.size() > 0)
         {
-            if (!(file_utils::CheckFileExist(pcap2File.c_str())))
+            if (!(CheckFileExist(pcap2File.c_str())))
             {
                 printf("PCAP2文件: %s 不存在!\n", pcap2File.c_str());
                 exit(-1);
@@ -317,7 +317,7 @@ public:
 
         // 输出目录
         rootOutputDir = outputFolder; //输出的根目录,默认./output
-        outputFolder = outputFolder + "/" + file_utils::getFileName(pcapFile);
+        outputFolder = outputFolder + "/" + getFileName(pcapFile);
         if (trajFile == "")
             trajFile = outputFolder + "/traj_" + std::to_string(startID) + "_" + std::to_string(endID) + ".txt";
         outputMap = outputFolder + "/map_" + std::to_string(startID) + "_" + std::to_string(endID) + ".las";

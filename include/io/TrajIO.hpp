@@ -46,7 +46,7 @@ public:
     :   startID(-1),
         endID(-1),
         frameGap(0),
-        data_name(file_utils::getFileName(traj_path))
+        data_name(getFileName(traj_path))
     {
         assert( CheckFileExist(traj_path) );
         traj_file_.open(traj_path.c_str());

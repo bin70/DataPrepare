@@ -8,7 +8,6 @@
 #include <semantic_map/SemanticMap.hpp>
 
 using namespace std;
-using namespace file_utils;
 using namespace vis_utils;
 using namespace pcl::visualization;
 

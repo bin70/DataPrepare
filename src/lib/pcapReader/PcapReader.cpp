@@ -21,7 +21,7 @@ void PointCloudReader::init(ArgParser args)
     // 设置有效数据的范围 
     distanceControl = args.valid_dis;
 
-    std::cout << file_utils::getFileName(fileNamePcap)  << " has frames: " << reader.totalFrame() << std::endl;
+    std::cout << getFileName(fileNamePcap)  << " has frames: " << reader.totalFrame() << std::endl;
     inited = true;
 }
 
