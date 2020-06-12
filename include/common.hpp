@@ -35,81 +35,75 @@
 typedef pcl::PointXYZINormal PointType;
 typedef pcl::PointCloud<PointType> PointCloud;
 
-namespace file_utils
+inline std::string getFileName(std::string path)
 {
-    inline int CreateDir(const char *sPathName);
-    inline int createDir(std::string path);
+    std::string fullName = path.substr(path.rfind('/') + 1);
+    return fullName.substr(0, fullName.find('.'));
+}
 
-    inline std::string getFileName(std::string path)
+///************************************************************************/
+///* 创建文件夹，存在则不创建                                                  */
+///************************************************************************/
+inline int CreateDir(const char *sPathName)
+{
+    char DirName[256];
+    strcpy(DirName, sPathName);
+    int i, len = strlen(DirName);
+    if (DirName[len - 1] != '/')
+        strcat(DirName, "/");
+    len = strlen(DirName);
+    for (i = 1; i < len; i++)
     {
-        std::string fullName = path.substr(path.rfind('/') + 1);
-        return fullName.substr(0, fullName.find('.'));
-    }
-
-    inline int createDir(std::string path)
-    {
-        return CreateDir(path.c_str());
-    }
-
-    ///************************************************************************/
-    ///* 创建文件夹，存在则不创建                                                  */
-    ///************************************************************************/
-    inline int CreateDir(const char *sPathName)
-    {
-        char DirName[256];
-        strcpy(DirName, sPathName);
-        int i, len = strlen(DirName);
-        if (DirName[len - 1] != '/')
-            strcat(DirName, "/");
-        len = strlen(DirName);
-        for (i = 1; i < len; i++)
+        if (DirName[i] == '/' || DirName[i] == '\\')
         {
-            if (DirName[i] == '/' || DirName[i] == '\\')
+            DirName[i] = 0;
+            if (access(DirName, 0) != 0) //存在则返回0
             {
-                DirName[i] = 0;
-                if (access(DirName, 0) != 0) //存在则返回0
+                if (mkdir(DirName, 0755) == -1)
                 {
-                    if (mkdir(DirName, 0755) == -1)
-                    {
-                        perror("mkdir   error");
-                        return -1;
-                    }
+                    perror("mkdir   error");
+                    return -1;
                 }
-                DirName[i] = '/';
             }
+            DirName[i] = '/';
         }
-
-        return 0;
     }
 
-    ///************************************************************************/
-    ///* 删除文件夹，不存在则不删除                                               */
-    ///************************************************************************/
-    inline int DeleteDir(const char *path)
+    return 0;
+}
+
+inline int createDir(std::string path)
+{
+    return CreateDir(path.c_str());
+}
+
+///************************************************************************/
+///* 删除文件夹，不存在则不删除                                               */
+///************************************************************************/
+inline int DeleteDir(const char *path)
+{
+    std::string dirPath = path;
+    if (access(path, 0) == 0)
     {
-        std::string dirPath = path;
-        if (access(path, 0) == 0)
-        {
-            std::string shell_delete_command = "rm -rf " + dirPath;
-            return system(shell_delete_command.c_str());
-        }
-        return 0;
+        std::string shell_delete_command = "rm -rf " + dirPath;
+        return system(shell_delete_command.c_str());
     }
+    return 0;
+}
 
-    ///************************************************************************/
-    ///* 检查文件是否存在
-    ///************************************************************************/
+///************************************************************************/
+///* 检查文件是否存在
+///************************************************************************/
 
-    inline bool CheckFileExist(const char *p)
+inline bool CheckFileExist(const char *p)
+{
+
+    if ((access(p, 0)) == 0)
     {
-
-        if ((access(p, 0)) == 0)
-        {
-            return true;
-        }
-        return false;
+        return true;
     }
-} // namespace file_utils
+    return false;
+}
 
 inline void consoleProgress(int progress)
 {
