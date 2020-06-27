@@ -45,6 +45,7 @@ int main(int argc, const char **argv)
     TrajIO traj(input_dir+"/traj_with_timestamp.txt");
     MapManager map(resolution);
     SemanticMap smap(map.getMapPtr(), input_dir+"/labeled_map");
+    std::cout << "Finish." << std::endl;
     map.update();
 
     int begin_id = parser.get<int>("begin_id");
@@ -56,6 +57,7 @@ int main(int argc, const char **argv)
     pcl::VoxelGrid<PointType> grid;
     grid.setLeafSize(resolution, resolution, resolution);
 
+    std::cout << "Start to labeling scans..." << std::endl;
     int frame_id = begin_id;
     while(reader.readPointCloud(cloud, frame_id))
     {
@@ -79,12 +81,13 @@ int main(int argc, const char **argv)
             waitForSpace(viewer);
         }
         
-        
+        Eigen::Matrix4d m_inv = m.inverse();
+        pcl::transformPointCloud(*cloud, *cloud, m_inv);
         pcl::io::savePCDFile(out_dir+"/"+to_string(frame_id)+".pcd", *cloud);
 
         frame_id += traj.getFrameGap();
-
         consoleProgress(frame_id, begin_id, end_id);
+        if(frame_id > end_id) break;
     }
 
     return 0;
