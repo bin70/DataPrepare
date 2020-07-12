@@ -12,8 +12,9 @@ int frameid(std::string path)
 class PCDReader
 {
 public:
-    PCDReader(std::string pcd_dir, int data_columns = 8)
+    PCDReader(std::string pcd_dir, int _data_columns = 8)
     {
+        data_columns = _data_columns;
         openPCDDir(pcd_dir);
     }
 
@@ -26,6 +27,7 @@ public:
     };
 
 private:
+    int data_columns;
     std::map<int, std::string> pcd_files;
     inline float norm(PointType &p){ return std::sqrt(p.x*p.x + p.y*p.y + p.z*p.z);}
     
@@ -73,7 +75,7 @@ private:
             boost::split(st, line, boost::is_any_of("\t\r "), boost::token_compress_on);
 
             // x y z intensity
-            if (st.size() != DATA_COLUNMS) continue;
+            if (st.size() != data_columns) continue;
 
             PointType p;
             p.x = val<float>(st[0]);
