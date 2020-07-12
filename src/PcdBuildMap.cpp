@@ -29,6 +29,7 @@ int main(int argc, char **argv){
 
     PCDReader reader(args.pcapFile);
     TrajIO traj(args.trajFile);
+    std::cout << "Read trajectory finished." << std::endl;
 
     // octree 的网格决定了地图的分辨率, 默认3(单位m)
     MapManager map((args.resolution)/100.0);
@@ -37,6 +38,7 @@ int main(int argc, char **argv){
     long long frameID = args.startID;
     consoleProgress(0);
 
+    std::cout << "begin to reading point cloud..." << std::endl;
     while( reader.readPointCloud(cloud, frameID) )
     {
         #if USE_LOAM_POSE // 用loam的坐标变换

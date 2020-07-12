@@ -48,7 +48,7 @@ public:
         frameGap(0),
         data_name(getFileName(traj_path))
     {
-        assert( CheckFileExist(traj_path) );
+        assert( CheckFileExist(traj_path.c_str()) == true );
         traj_file_.open(traj_path.c_str());
 
         // 头文件

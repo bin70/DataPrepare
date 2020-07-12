@@ -32,7 +32,7 @@ private:
     
     void openPCDDir(std::string path)
     {
-        assert(CheckFileExist(path) == true);
+        assert(CheckFileExist(path.c_str()) == true);
         
         DIR *dir = opendir(path.c_str());
         dirent *ptr;
