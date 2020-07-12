@@ -82,8 +82,8 @@ private:
             p.y = val<float>(st[1]);
             p.z = val<float>(st[2]);
             
-            // 15m
-            if (norm(p) > 15.0) continue;
+            // 25m
+            if (norm(p) > 25.0) continue;
             
             p.intensity = val<float>(st[3]);;
             cloud->points.push_back(p);
