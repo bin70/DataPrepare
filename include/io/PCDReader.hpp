@@ -12,7 +12,7 @@ int frameid(std::string path)
 class PCDReader
 {
 public:
-    PCDReader(std::string pcd_dir)
+    PCDReader(std::string pcd_dir, int data_columns = 8)
     {
         openPCDDir(pcd_dir);
     }
@@ -26,7 +26,6 @@ public:
     };
 
 private:
-    const int DATA_COLUNMS = 4;
     std::map<int, std::string> pcd_files;
     inline float norm(PointType &p){ return std::sqrt(p.x*p.x + p.y*p.y + p.z*p.z);}
     
