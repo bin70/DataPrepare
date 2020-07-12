@@ -9,7 +9,7 @@
 #define UNUSED_LINES 3
 
 enum TrajType{
-    ROS_LOAM, G2O
+    ROS_LOAM, G2O, KITTI
 };
 
 class PoseNode
@@ -118,6 +118,8 @@ public:
                 return readPoseLOAM();
             case G2O:
                 return readPoseG2O();
+            case KITTI:
+                return readPoseKITTI();
         }
     }
 
@@ -192,6 +194,45 @@ private:
         Eigen::Matrix3d r = q.toRotationMatrix();
         curPose.tf.block(0, 0, 3, 3) = r;
         curPose.tf.block(0, 3, 3, 1) = v;
+
+        traj[curPose.frameID] = curPose;
+
+        return true;
+    }
+
+    bool readPoseKITTI()
+    {
+        if(traj_file_.eof()) return false;
+        
+        std::string line;
+        std::vector<std::string> st;
+
+        getline(traj_file_, line);
+        if(line.empty()) return false;
+
+        boost::trim(line);
+        boost::split(st, line, boost::is_any_of("\r\t "), boost::token_compress_on);
+
+        if(st.size() != 12)
+        {
+            std::cout << "轨迹格式有问题" << std::endl;
+            return false;
+        }
+        
+        curPose.tf = Eigen::Matrix4d::Identity();
+
+        for(int row=0; row<3; ++row)
+        {
+            for(int col=0; col<4; ++col)
+            {
+                curPose.tf(row, col) = atof(st[row*4+col].c_str());
+            }
+        }
+        
+        Eigen::Matrix3d r = curPose.tf.block(0, 0, 3, 3);
+        Eigen::Quaterniond q(r);
+        curPose.qua = q;
+        curPose.pos = curPose.tf.block(0, 3, 3, 1);
 
         traj[curPose.frameID] = curPose;
     }
