@@ -17,6 +17,8 @@ public:
         data_columns = _data_columns;
         openPCDDir(pcd_dir);
     }
+    
+    void setBinary(bool value){ is_binary = value; }
 
     bool readPointCloud(PointCloud::Ptr &cloud, int frame_id)
     {
@@ -27,6 +29,7 @@ public:
     };
 
 private:
+    bool is_binary = false;
     int data_columns;
     std::map<int, std::string> pcd_files;
     inline float norm(PointType &p){ return std::sqrt(p.x*p.x + p.y*p.y + p.z*p.z);}
@@ -58,6 +61,10 @@ private:
             PCL_ERROR("Could not open: %s", file.c_str());
             return false;
         }
+
+        if(is_binary)
+            return (pcl::io::loadPCDFile(file, *cloud) != -1);   
+
         std::string line;
         int line_cnts = 0;
         std::vector<std::string> st;
