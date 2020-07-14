@@ -43,6 +43,8 @@ int main(int argc, const char **argv)
     createDir(out_dir);
 
     PCDReader reader(input_dir+"/raw_scans");
+    reader.setBinary(true); // 使用的是二进制文件
+
     TrajIO traj(input_dir+"/traj_with_timestamp.txt", (TrajType)parser.get<int>("traj_type"));
     
     MapManager map(resolution);
