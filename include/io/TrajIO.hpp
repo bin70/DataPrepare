@@ -12,6 +12,70 @@ enum TrajType{
     ROS_LOAM, G2O, KITTI
 };
 
+class TrajIOKITTI
+{
+public:
+    TrajIOKITTI(std::string traj_path, int begin_id = 0, int end_id = -1)
+    {
+        assert( CheckFileExist(traj_path.c_str()) == true );
+        traj_file_.open(traj_path.c_str());
+        pose_id = begin_id;
+
+        while(readPoseKITTI()) ;
+    }
+
+    bool readPoseKITTI()
+    {
+        if(traj_file_.eof()) return false;
+        
+        std::string line;
+        std::vector<std::string> st;
+
+        getline(traj_file_, line);
+        if(line.empty()) return false;
+
+        boost::trim(line);
+        boost::split(st, line, boost::is_any_of("\r\t "), boost::token_compress_on);
+
+        if(st.size() != 12)
+        {
+            std::cout << "轨迹格式有问题" << std::endl;
+            return false;
+        }
+        
+        Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
+   
+        for(int row=0; row<3; ++row)
+            for(int col=0; col<4; ++col)
+                tf(row, col) = (double)atof(st[row*4+col].c_str());
+        
+
+        // for(int i=0; i<4; ++i)
+        // {
+        //     for(int j=0; j<4; ++j)
+        //         std::cout << tf(i,j) << " ";
+        //     std::cout << std::endl;
+        // }
+
+        traj.push_back(tf);
+        pose_id_list.push_back(pose_id);
+        pose_id++;
+        return true;
+    }
+
+    Eigen::Matrix4d getPose(int id)
+    {
+        assert(id>=0 && id<traj.size());
+        return traj[id];
+    }
+
+private:
+    int pose_id;
+    std::ifstream traj_file_;
+    std::vector<Eigen::Matrix4d> traj;
+    std::vector<int> pose_id_list;
+};
+
 class PoseNode
 {
 public:
@@ -21,20 +85,23 @@ public:
     Eigen::Quaterniond qua;
     Eigen::Vector3d pos;
     Eigen::Matrix<double, 6, 1> loamTrans;
-    std::vector<double> loamTrans2;
+    //std::vector<double> loamTrans2;
 
     PoseNode() : frameID(0), timestamp(0), //label(false),
                  tf(Eigen::Matrix4d::Identity())
     {
-        loamTrans2.resize(12);
+        //loamTrans2.resize(12);
     }
 
     PoseNode operator=(const PoseNode &value)
     {
+         std::cout << "assign to this->tf" << std::endl;
         this->frameID = value.frameID;
         this->timestamp = value.timestamp;
         //this->label = value.label;
+       
         this->tf = value.tf;
+        std::cout << "assign successfully." << std::endl; 
         return *this;
     }
 };
@@ -46,26 +113,30 @@ public:
     :   startID(-1),
         endID(-1),
         frameGap(0),
-        data_name(getFileName(traj_path))
+        data_name(getFileName(traj_path)),
+        pose_cnt(0)
     {
         assert( CheckFileExist(traj_path.c_str()) == true );
         traj_file_.open(traj_path.c_str());
 
-        // 头文件
+        if(type != KITTI)
+        {// 头文件
         for (int i = 0; i < UNUSED_LINES && !traj_file_.eof(); ++i)
             getline(traj_file_, unused);
+        }
 
         // 读取开始帧号
         if(readPose(type))
             startID = curPose.frameID;
 
+        std::cout << "startID = " << startID << std::endl;
         assert(startID >=0);
 
         // 获取帧间隔
         if(readPose(type))
             frameGap = curPose.frameID - startID;
         
-        assert(frameGap>=1 && frameGap<=3);
+        assert((frameGap>=1 && frameGap<=3)== true);
 
         // 读取剩余位姿
         while(readPose(type))
@@ -221,23 +292,40 @@ private:
         
         curPose.tf = Eigen::Matrix4d::Identity();
 
+   
         for(int row=0; row<3; ++row)
         {
             for(int col=0; col<4; ++col)
             {
-                curPose.tf(row, col) = atof(st[row*4+col].c_str());
+                curPose.tf(row, col) = (double)atof(st[row*4+col].c_str());
             }
         }
-        
+
+        for(int i=0; i<4; ++i)
+        {
+            for(int j=0; j<4; ++j)
+                std::cout << curPose.tf(i,j) << " ";
+            std::cout << std::endl;
+        }
+
         Eigen::Matrix3d r = curPose.tf.block(0, 0, 3, 3);
         Eigen::Quaterniond q(r);
         curPose.qua = q;
         curPose.pos = curPose.tf.block(0, 3, 3, 1);
+        
+        curPose.frameID = (long long)pose_cnt;
+        
+        // 这里要检查一下
+        std::cout << "frameID:" << curPose.frameID << std::endl;
 
-        traj[curPose.frameID] = curPose;
+        traj[pose_cnt] = curPose;
+        pose_cnt++;
+
+        return true;
     }
 
 private:
+    int pose_cnt;
     std::string unused;
     long long startID;
     long long endID;
