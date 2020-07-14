@@ -55,14 +55,15 @@ int main(int argc, const char **argv)
 {
     ArgumentParser parser;
     parser.addArgument("-p", "--pcap", true);
-    parser.addArgument("-t", "--traj", true);
     parser.addArgument("-d", "--data_type", true);
+    parser.addArgument("-t", "--traj", true);
+    parser.addArgument("-m", "--pcap2"); //可选双头建图
     parser.addArgument("-b", "--begin_id");
     parser.addArgument("-e", "--end_id");
-    parser.addArgument("--pcap2");
     parser.addArgument("-o", "--out_dir");
     parser.addArgument("-s", "--show");
     parser.addArgument("-r", "--resolution");
+    parser.addArgument("-c", "--calib_matrix"); //是否使用一个初始的标定矩阵变换雷达帧（斜装头建图时才用到）
     parser.parse(argc, argv);
 
     if(parser.count("out_dir"))
@@ -89,12 +90,23 @@ int main(int argc, const char **argv)
     reader.setValidDistance(25.0);
     reader.init();
 
+    PointCloudReader reader2;
+    if(parser.count("pcap2"))
+    {
+        reader2.setPcapFile(parser.get("pcap2"));
+        reader2.setCalibFile(getCalibFile(0)); // 第二个雷达一定是16线
+        reader2.setVoxelSize(0.03); // 单帧分辨率
+        reader2.setValidDistance(25.0);
+        reader2.init();
+    }
+
     TrajIO traj(parser.get("traj"), G2O, 3);
 
     MapManager map(resolution);
     map.update();
 
     PointCloud::Ptr cloud(new PointCloud);
+    PointCloud::Ptr cloud2(new PointCloud);
     long long frameID = begin_id;
     consoleProgress(0);
 
@@ -103,6 +115,24 @@ int main(int argc, const char **argv)
 
     while (reader.readPointCloud(cloud, frameID))
     {
+        // 使用双头的数据建图
+        if(parser.count("pcap2"))
+        {
+            if(!reader2.readPointCloud(cloud2, frameID))
+            {
+                std::cout << "pcap2 is end!" << std::endl;
+                break;
+            }
+            // 合并两帧
+            pcl::transformPointCloud(*cloud2, *cloud2, calibMatrix);
+            *cloud += *cloud2;
+        }
+
+        // 使用斜着的头建图时才会用到
+        if(parser.count("calib_matrix"))
+        {
+            pcl::transformPointCloud(*cloud, *cloud, calibMatrix);
+        }
 
 #if USE_LOAM_POSE // 用loam的坐标变换
 
