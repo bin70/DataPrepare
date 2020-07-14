@@ -6,7 +6,7 @@ PointCloudReader::PointCloudReader()
     voxelLeafsize = 0;
 }
 
-void PointCloudReader::init(ArgParser args)
+void PointCloudReader::init()
 {
     if (!open_pcap()){
         printf("Cannot open pcap file:%s!\n", fileNamePcap.c_str());
@@ -18,9 +18,6 @@ void PointCloudReader::init(ArgParser args)
         exit(-1);
     }
     
-    // 设置有效数据的范围 
-    distanceControl = args.valid_dis;
-
     std::cout << getFileName(fileNamePcap)  << " has frames: " << reader.totalFrame() << std::endl;
     inited = true;
 }
