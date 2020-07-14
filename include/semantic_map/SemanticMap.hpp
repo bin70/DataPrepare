@@ -4,12 +4,11 @@
 #include <map>
 #include <pcl/io/pcd_io.h>
 
-enum LABEL
-{
-    FLOOR,    // 地面0
-    WALL,     // 墙面1
-    CEILING,  // 顶面2
-    UNLABELED // 其他3
+std::map<std::string, int> label_map = {
+    {"ceiling", 0},
+    {"floor", 1},
+    {"wall", 2},
+    {"clutter", 3}
 };
 
 int labelid(std::string path)
@@ -17,7 +16,7 @@ int labelid(std::string path)
     int begin = path.rfind('/');
     int end = path.rfind('.');
     std::string id_str = path.substr(begin + 1, end - begin - 1);
-    return atoi(id_str.c_str());
+    return label_map[id_str];
 }
 
 class SemanticMap
@@ -34,12 +33,12 @@ public:
         if (!openDir(rootDir))
             return false;
 
-        for (LABEL label = FLOOR; label <= UNLABELED; label = (LABEL)(label + 1))
+        for (int label = 0; label <= label_map["clutter"]; ++label)
         {
             std::ifstream fcloud(file_list[label]);
             if (!fcloud.is_open())
             {
-                std::cout << "打开文件" << file_list[label] << "失败" << std::endl;
+                std::cout << "打开文件:" << file_list[label] << " 失败" << std::endl;
                 return false;
             }
 
