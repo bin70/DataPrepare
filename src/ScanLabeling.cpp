@@ -21,6 +21,7 @@ int main(int argc, const char **argv)
     parser.addArgument("-i", "--input_dir", true);
     parser.addArgument("-b", "--begin_id", true);
     parser.addArgument("-e", "--end_id", true);
+    parser.addArgument("-t", "--traj_type", true);
     parser.addArgument("-r", "--resolution");
     parser.addArgument("-s", "--show_cloud");
     parser.parse(argc, argv);
@@ -42,9 +43,10 @@ int main(int argc, const char **argv)
     createDir(out_dir);
 
     PCDReader reader(input_dir+"/raw_scans");
-    TrajIO traj(input_dir+"/traj_with_timestamp.txt");
+    TrajIO traj(input_dir+"/traj_with_timestamp.txt", (TrajType)parser.get<int>("traj_type"));
+    
     MapManager map(resolution);
-    SemanticMap smap(map.getMapPtr(), input_dir+"/labeled_map");
+    SemanticMap smap(map.getMapPtr(), input_dir+"/manually_labeled");
     std::cout << "Finish." << std::endl;
     map.update();
 
