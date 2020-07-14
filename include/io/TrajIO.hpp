@@ -6,8 +6,6 @@
 #include <common.hpp>
 #include <loam/transform.hpp>
 
-#define UNUSED_LINES 3
-
 enum TrajType{
     ROS_LOAM, G2O, KITTI
 };
@@ -109,7 +107,7 @@ public:
 class TrajIO
 {
 public:
-    TrajIO(std::string traj_path, TrajType type = ROS_LOAM)
+    TrajIO(std::string traj_path, TrajType type = ROS_LOAM, int ignore_lines = 3)
     :   startID(-1),
         endID(-1),
         frameGap(0),
@@ -121,7 +119,7 @@ public:
 
         if(type != KITTI)
         {// 头文件
-        for (int i = 0; i < UNUSED_LINES && !traj_file_.eof(); ++i)
+        for (int i = 0; i < ignore_lines && !traj_file_.eof(); ++i)
             getline(traj_file_, unused);
         }
 
@@ -248,7 +246,7 @@ private:
         curPose.qua = q;
         curPose.pos = curPose.tf.block(0, 3, 3, 1);
 
-        traj[curPose.frameID] = curPose;
+        traj.insert( std::make_pair(curPose.frameID, curPose) );
         return true;
     }
 
@@ -258,16 +256,18 @@ private:
 
         Eigen::Quaterniond q;
         Eigen::Vector3d v;
+        Eigen::Matrix3d r;
+
+        // 9 number each line: {Frame Number, Position[x|y|z], Quaternion[qx|qy|qz|qw], Timestamp(us)}
         traj_file_ >> curPose.frameID >> v(0) >> v(1) >> v(2) >> q.x() >> q.y() >> q.z() >> q.w() >> curPose.timestamp;
         curPose.qua = q;
         curPose.pos = v;
         curPose.tf = Eigen::Matrix4d::Identity();
-        Eigen::Matrix3d r = q.toRotationMatrix();
+        r = q.toRotationMatrix();
         curPose.tf.block(0, 0, 3, 3) = r;
         curPose.tf.block(0, 3, 3, 1) = v;
-
-        traj[curPose.frameID] = curPose;
-
+    
+        traj.insert( std::make_pair(curPose.frameID, curPose) );
         return true;
     }
 
