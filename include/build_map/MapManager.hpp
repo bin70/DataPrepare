@@ -48,12 +48,13 @@ public:
     PointType tempPoint;
     for (int i = 0; i < frame->points.size(); i++)
     { // Add frame to Global Map
-      tempPoint.x = frame->points[i].x;
-      tempPoint.y = frame->points[i].y;
-      tempPoint.z = frame->points[i].z;
-      tempPoint.intensity = frame->points[i].intensity;
-      tempPoint.data_n[0] = frame->points[i].data_n[0];
-      tempPoint.data_n[1] = frame->points[i].data_n[1];
+      //tempPoint.x = frame->points[i].x;
+      //tempPoint.y = frame->points[i].y;
+      //tempPoint.z = frame->points[i].z;
+      //tempPoint.intensity = frame->points[i].intensity;
+      //tempPoint.data_n[0] = frame->points[i].data_n[0];
+      //tempPoint.data_n[1] = frame->points[i].data_n[1];
+      tempPoint = frame->points[i];
       if (!octree->isVoxelOccupiedAtPoint(tempPoint))
         octree->addPointToCloud(tempPoint, map);
     }
