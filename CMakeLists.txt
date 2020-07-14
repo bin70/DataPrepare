@@ -19,5 +19,8 @@ add_subdirectory(src/lib)
 add_executable(pcdBuildMap src/PcdBuildMap.cpp)
 target_link_libraries(pcdBuildMap ${PCL_LIBRARIES})
 
+add_executable(xyzlBuildMap src/XYZLBuildMap.cpp)
+target_link_libraries(xyzlBuildMap ${PCL_LIBRARIES})
+
 add_executable(scanLabeling src/ScanLabeling.cpp)
 target_link_libraries(scanLabeling ${PCL_LIBRARIES})
