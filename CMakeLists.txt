@@ -20,6 +20,9 @@ add_subdirectory(src/lib)
 add_executable(pcapBuildMap src/PcapBuildMap.cpp)
 target_link_libraries(pcapBuildMap pcapReader ${PCL_LIBRARIES} -lpcap)
 
+add_executable(pcap2PCD src/Pcap2PCD.cpp)
+target_link_libraries(pcap2PCD pcapReader ${PCL_LIBRARIES} -lpcap)
+
 add_executable(pcdBuildMap src/PcdBuildMap.cpp)
 target_link_libraries(pcdBuildMap ${PCL_LIBRARIES})
 
