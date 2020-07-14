@@ -1084,7 +1084,8 @@ class PointCloudReader{
         void setPcapFile(std::string _fileName) { fileNamePcap = _fileName; }
         void setCalibFile(std::string _fileName) { calibrationPath = _fileName; }
         void setVoxelSize(float _voxelLeafsize) { voxelLeafsize = _voxelLeafsize; }
-        void init(ArgParser args);
+		void setValidDistance(float value){ distanceControl = value; }
+        void init();
         bool readPointCloud(PointCloud::Ptr _cloud, long long _frameID);
 
     private:
@@ -1095,7 +1096,7 @@ class PointCloudReader{
         //long long frameID;
         std::string fileNamePcap;
         std::string calibrationPath;
-        float distanceControl;
+        float distanceControl = 25.0;
         float voxelLeafsize;
 
         pcapReader reader;
