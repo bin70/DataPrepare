@@ -24,11 +24,11 @@ std::string getCalibFile(int data_type)
     case 1:
         return "../resource/HDL-32.xml";
     case 2:
-        return "../resource/VLP-32a.xml";
-    case 3:
-        return "../resource/VLP-32b.xml";
-    case 4:
-        return "../resource/VLP-32C.xml";
+    //    return "../resource/VLP-32a.xml";
+    //case 3:
+        return "../resource/VLP-32c.xml";
+    //case 4:
+    //    return "../resource/VLP-32C.xml";
     default:
         std::cout << "Data type error!" << std::endl;
     }
@@ -92,6 +92,7 @@ int main(int argc, const char **argv)
     TrajIO traj(parser.get("traj"), G2O, 3);
 
     MapManager map(resolution);
+    map.update();
 
     PointCloud::Ptr cloud(new PointCloud);
     long long frameID = begin_id;
@@ -124,7 +125,7 @@ int main(int argc, const char **argv)
 
 #else // 变换矩阵表示的位姿
         Eigen::Matrix4d m = traj.getPoseMatrix(frameID);
-        m = m*calibMatrix;
+        //m = m*calibMatrix;
         pcl::transformPointCloud(*cloud, *cloud, m);
 #endif
 
@@ -135,10 +136,15 @@ int main(int argc, const char **argv)
         // 全分辨率
         *map_cloud += *cloud;
 #endif
-
         if (is_show)
+        #if 1
             vis_utils::ShowCloud(map.getMapPtr(), viewer);
-
+        #else
+        {
+            vis_utils::ShowCloud(cloud, viewer, "intensity", 3);
+            vis_utils::waitForSpace(viewer);
+        }
+        #endif
         // 间隔几帧
         frameID += traj.getFrameGap();
 
@@ -149,11 +155,11 @@ int main(int argc, const char **argv)
         consoleProgress(frameID, begin_id, end_id);
     }
 
-    std::stringstream ss;
-    ss << parser.get("out_dir") << "/map_" << begin_id << "_" << end_id << ".las"; 
-    std::string out_path = ss.str();
-    saveLasFile(out_path, map.getMapPtr());
-    std::cout << "地图保存至: " << out_path << std::endl;
+    std::stringstream out;
+    out << out_dir << "/map_" << begin_id << "_" << end_id << ".las"; 
+    
+    saveLasFile(out.str(), map.getMapPtr());
+    std::cout << "地图保存至: " << out.str() << std::endl;
 
     return 0;
 }

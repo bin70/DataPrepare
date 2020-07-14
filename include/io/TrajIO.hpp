@@ -126,8 +126,6 @@ public:
         // 读取开始帧号
         if(readPose(type))
             startID = curPose.frameID;
-
-        std::cout << "startID = " << startID << std::endl;
         assert(startID >=0);
 
         // 获取帧间隔
@@ -143,11 +141,11 @@ public:
         traj_file_.close();
         endID = curPose.frameID;
         
-        std::cout << "\n======================== Details of trajectory ============================" << std::endl
+        std::cout << "\n========================= Details of trajectory ============================" << std::endl
                   << "\tstartID in trajectory = " << startID << std::endl
                   << "\tendID in trajectory = " << endID << std::endl
                   << "\tframeGap = " << frameGap << std::endl
-                  << "\tframe number = " << traj.size() << std::endl
+                  << "\tpose number = " << traj.size() << std::endl
                   << "==============================================================================" << std::endl;
     }
         

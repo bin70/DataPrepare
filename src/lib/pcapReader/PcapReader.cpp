@@ -18,7 +18,11 @@ void PointCloudReader::init()
         exit(-1);
     }
     
-    std::cout << getFileName(fileNamePcap)  << " has frames: " << reader.totalFrame() << std::endl;
+    std::cout << "========================= Information of pcap file ============================\n" 
+              << "\tpcapfile name = " << getFileName(fileNamePcap) << std::endl
+              << "\tframe number = " << reader.totalFrame() << std::endl
+              << "\tcalibration file = " << calibrationPath << std::endl
+              << "==============================================================================" << std::endl;
     inited = true;
 }
 
