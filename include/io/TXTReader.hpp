@@ -27,6 +27,15 @@ public:
     };
 
 private:
+    template <typename T>
+    T val(const std::string &s)
+    {
+        std::stringstream ss;
+        ss << s;
+        T v;
+        ss >> v;
+        return v;
+    }
     int data_columns;
     std::map<int, std::string> txt_files;
     inline float norm(PointType &p){ return std::sqrt(p.x*p.x + p.y*p.y + p.z*p.z);}

@@ -29,6 +29,16 @@ public:
     };
 
 private:
+    template <typename T>
+    T val(const std::string &s)
+    {
+        std::stringstream ss;
+        ss << s;
+        T v;
+        ss >> v;
+        return v;
+    }
+
     bool is_binary = false;
     int data_columns;
     std::map<int, std::string> pcd_files;

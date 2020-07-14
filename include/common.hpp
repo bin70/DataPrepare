@@ -136,16 +136,6 @@ inline void consoleProgress(int progress, int begin, int end)
     consoleProgress(100. * (progress - begin) / (end - begin));
 }
 
-template <typename T>
-T val(const std::string &s)
-{
-    std::stringstream ss;
-    ss << s;
-    T v;
-    ss >> v;
-    return v;
-}
-
 class ArgParser
 {
 public:
