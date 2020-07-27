@@ -13,10 +13,8 @@ find_package(PCL 1.8 REQUIRED)
 add_definitions(${PCL_DEFINITIONS})
 include_directories(${PCL_INCLUDE_DIRS})
 
-include_directories(${PROJECT_SOURCE_DIR}/../Toolkit/include ${PROJECT_SOURCE_DIR})
-
-#add_executable(xyzlBuildMap src/XYZLBuildMap.cpp)
-#target_link_libraries(xyzlBuildMap ${PCL_LIBRARIES})
+include_directories(${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/../Toolkit/include)
 
 add_executable(scanLabeling src/ScanLabeling.cpp)
 target_link_libraries(scanLabeling ${PCL_LIBRARIES})
