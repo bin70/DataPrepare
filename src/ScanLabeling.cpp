@@ -1,17 +1,23 @@
-#include <common.hpp>
+// pcl
 #include <pcl/common/transforms.h>
-#include <io/PCDReader.hpp>
+
+// Toolkit lib
+#include <argparse.hpp>
+#include <io/PCDOperator.hpp>
 #include <io/TrajIO.hpp>
+#include <io/FileOperator.hpp>
 #include <build_map/MapManager.hpp>
 #include <visualization/ShowCloud.hpp>
-#include <argparse.hpp>
-#include <semantic_map/SemanticMap.hpp>
+
+// own
+#include <SemanticMap.hpp>
 
 using namespace std;
 using namespace vis_utils;
 using namespace pcl::visualization;
 
 PCLVisualizer *viewer;
+FileOperator fop;
 bool show_cloud = false;
 float resolution = 0.03;
 
@@ -26,8 +32,6 @@ int main(int argc, const char **argv)
     parser.addArgument("-s", "--show_cloud");
     parser.parse(argc, argv);
 
-    consoleProgress(0);
-
     if(parser.count("resolution"))
         resolution = parser.get<float>("resolution");
     
@@ -39,17 +43,16 @@ int main(int argc, const char **argv)
     }
 
     string input_dir = parser.get("input_dir");
-    string out_dir = input_dir+"/labeled_scans";
-    createDir(out_dir);
+    string pcd_dir = input_dir+"/PCD";
+    string traj_path = input_dir+"/traj_with_timestamp.txt";
+    string labeled_map = input_dir+"/manually_labeled";
+    TrajType traj_type = (TrajType)parser.get<int>("traj_type");
 
-    PCDReader reader(input_dir+"/raw_scans");
-    reader.setBinary(true); // 使用的是二进制文件
-
-    TrajIO traj(input_dir+"/traj_with_timestamp.txt", (TrajType)parser.get<int>("traj_type"));
+    PCDReader reader(pcd_dir, true); // 使用的是二进制文件
+    TrajIO traj(traj_path, traj_type);
     
     MapManager map(resolution);
-    SemanticMap smap(map.getMapPtr(), input_dir+"/manually_labeled");
-    std::cout << "Finish." << std::endl;
+    SemanticMap smap(map.getMapPtr(), labeled_map);
     map.update();
 
     int begin_id = parser.get<int>("begin_id");
@@ -62,6 +65,11 @@ int main(int argc, const char **argv)
     grid.setLeafSize(resolution, resolution, resolution);
 
     std::cout << "Start to labeling scans..." << std::endl;
+    consoleProgress(0);
+
+    string out_dir = input_dir + "/labeled_scans";
+    fop.makeDir(out_dir);
+
     int frame_id = begin_id;
     while(reader.readPointCloud(cloud, frame_id))
     {
@@ -76,23 +84,28 @@ int main(int argc, const char **argv)
             if(map.getNearestPoint(point, pointSel))
                 point.curvature = pointSel.curvature;
             else
-                point.curvature = 0;
+                point.curvature = label_map["clutter"];
         }
 
-        if(show_cloud)
-        {
-            ShowCloud(cloud, viewer, "curvature");
-            waitForSpace(viewer);
-        }
+        
         
         Eigen::Matrix4d m_inv = m.inverse();
         pcl::transformPointCloud(*cloud, *cloud, m_inv);
-        pcl::io::savePCDFile(out_dir+"/"+to_string(frame_id)+".pcd", *cloud);
+
+        if(show_cloud)
+        {
+            ShowCloud(cloud, viewer, "curvature", 3);
+            waitForSpace(viewer);
+        }
+
+        pcl::io::savePCDFileBinaryCompressed(out_dir+"/"+to_string(frame_id)+".pcd", *cloud);
 
         frame_id += traj.getFrameGap();
         consoleProgress(frame_id, begin_id, end_id);
         if(frame_id > end_id) break;
     }
+
+    std::cout << "Save result to " << out_dir << std::endl;
 
     return 0;
 }

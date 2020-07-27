@@ -13,21 +13,13 @@ find_package(PCL 1.8 REQUIRED)
 add_definitions(${PCL_DEFINITIONS})
 include_directories(${PCL_INCLUDE_DIRS})
 
-include_directories(include)
+include_directories(${PROJECT_SOURCE_DIR}/../Toolkit/include ${PROJECT_SOURCE_DIR})
 
-add_subdirectory(src/lib)
-
-add_executable(pcapBuildMap src/PcapBuildMap.cpp)
-target_link_libraries(pcapBuildMap pcapReader ${PCL_LIBRARIES} -lpcap)
-
-add_executable(pcap2PCD src/Pcap2PCD.cpp)
-target_link_libraries(pcap2PCD pcapReader ${PCL_LIBRARIES} -lpcap)
-
-add_executable(pcdBuildMap src/PcdBuildMap.cpp)
-target_link_libraries(pcdBuildMap ${PCL_LIBRARIES})
-
-add_executable(xyzlBuildMap src/XYZLBuildMap.cpp)
-target_link_libraries(xyzlBuildMap ${PCL_LIBRARIES})
+#add_executable(xyzlBuildMap src/XYZLBuildMap.cpp)
+#target_link_libraries(xyzlBuildMap ${PCL_LIBRARIES})
 
 add_executable(scanLabeling src/ScanLabeling.cpp)
 target_link_libraries(scanLabeling ${PCL_LIBRARIES})
+
+add_executable(genIncorrectMap src/GenerateIncorrectMap.cpp)
+target_link_libraries(genIncorrectMap ${PCL_LIBRARIES})

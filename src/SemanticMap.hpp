@@ -26,6 +26,8 @@ public:
     {
         std::cout << "Loading semantic map ..." << std::endl;
         loadMap(map_cloud, map_folder);
+        std::cout << "Load semantic map finished." << std::endl;
+        pLine();
     }
 
     bool loadMap(PointCloud::Ptr &map_cloud, std::string rootDir)
@@ -54,6 +56,8 @@ public:
                 p.curvature = (float)label;
                 map_cloud->points.push_back(p);
             }
+
+            consoleProgress(100/label_map.size()*(label+1));
         }
         return true;
     }
