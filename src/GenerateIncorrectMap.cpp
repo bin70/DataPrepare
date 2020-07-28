@@ -3,18 +3,17 @@
 #include <ctime>
 
 // pcl
-#include <pcl/common/transforms.h>
+#include <point_cloud/common.h>
 
 // Toolkit lib
-#include <io/PCDOperator.hpp>
+#include <argparse.hpp>
 #include <io/TrajIO.hpp>
-#include <io/FileOperator.hpp>
+#include <io/PCDOperator.hpp>
+#include <math/common.h>
+#include <math/lie_algebra.h>
+#include <math/TransformTool.hpp>
 #include <build_map/MapManager.hpp>
 #include <visualization/ShowCloud.hpp>
-#include <argparse.hpp>
-#include <math/lie_algebra.h>
-#include <math/common.h>
-#include <math/TransformTool.hpp>
 
 // own
 #include <SemanticMap.hpp>
