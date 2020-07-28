@@ -1,11 +1,10 @@
 // pcl
-#include <pcl/common/transforms.h>
+#include <point_cloud/common.h>
 
 // Toolkit lib
 #include <argparse.hpp>
-#include <io/PCDOperator.hpp>
 #include <io/TrajIO.hpp>
-#include <io/FileOperator.hpp>
+#include <io/PCDOperator.hpp>
 #include <build_map/MapManager.hpp>
 #include <visualization/ShowCloud.hpp>
 
@@ -87,8 +86,7 @@ int main(int argc, const char **argv)
                 point.curvature = label_map["clutter"];
         }
 
-        
-        
+
         Eigen::Matrix4d m_inv = m.inverse();
         pcl::transformPointCloud(*cloud, *cloud, m_inv);
 
