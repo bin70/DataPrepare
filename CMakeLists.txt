@@ -19,5 +19,5 @@ include_directories(${PROJECT_SOURCE_DIR}/include
 add_executable(scanLabeling src/ScanLabeling.cpp)
 target_link_libraries(scanLabeling ${PCL_LIBRARIES})
 
-add_executable(genIncorrectMap src/GenerateIncorrectMap.cpp)
-target_link_libraries(genIncorrectMap ${PCL_LIBRARIES})
+add_executable(simDegradation src/SimDegradation.cpp)
+target_link_libraries(simDegradation ${PCL_LIBRARIES})
