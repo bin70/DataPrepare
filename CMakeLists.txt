@@ -21,3 +21,6 @@ target_link_libraries(scanLabeling ${PCL_LIBRARIES})
 
 add_executable(simDegradation src/SimDegradation.cpp)
 target_link_libraries(simDegradation ${PCL_LIBRARIES})
+
+add_executable(addNoise src/AddNoiseToS3DIS.cpp)
+target_link_libraries(addNoise ${PCL_LIBRARIES})
