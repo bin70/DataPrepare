@@ -3,10 +3,10 @@
 #include <ctime>
 
 // pcl
-#include <point_cloud/common.h>
+#include <point_cloud/common.hpp>
 
 // Toolkit lib
-#include <argparse.hpp>
+#include <utils/argparse.hpp>
 #include <io/TrajIO.hpp>
 #include <io/PCDOperator.hpp>
 #include <math/common.h>
@@ -20,13 +20,16 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace vis_utils;
 using namespace pcl::visualization;
 
 typedef Matrix<double, 6, 1> Vector6d;
 PCLVisualizer *viewer;
 FileOperator fop;
 TransformTool tt;
+
+ShowUtils su;
+bool ShowUtils::isPause = true;
+
 bool show_cloud = false;
 float resolution = 0.03;
 
@@ -126,8 +129,7 @@ int main(int argc, const char **argv)
     if(parser.count("show_cloud"))
     {
         show_cloud = parser.get<bool>("show_cloud");
-        viewer = new PCLVisualizer("Labeled Local Map");
-        viewer->registerKeyboardCallback(&keyboardEventOccurred, (void*)NULL);
+        su.init("Labeled Local Map", &ShowUtils::keyboardEventOccurred);
     }
 
     string input_dir = parser.get("input_dir");
@@ -210,7 +212,7 @@ int main(int argc, const char **argv)
         frame_count++;
 
         if(show_cloud)
-            ShowCloud(map.getMapPtr(), viewer, "curvature", 2);
+            su.ShowCloud(map.getMapPtr(), "map", "curvature");
 
         consoleProgress(frame_id, begin_id, end_id);
         

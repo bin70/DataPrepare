@@ -1,8 +1,9 @@
 // pcl
-#include <point_cloud/common.h>
+#include <point_cloud/common.hpp>
 
 // Toolkit lib
-#include <argparse.hpp>
+#include <utils/argparse.hpp>
+#include <utils/common.hpp>
 #include <io/TrajIO.hpp>
 #include <io/PCDOperator.hpp>
 #include <build_map/MapManager.hpp>
@@ -12,10 +13,11 @@
 #include <SemanticMap.hpp>
 
 using namespace std;
-using namespace vis_utils;
 using namespace pcl::visualization;
 
-PCLVisualizer *viewer;
+ShowUtils su;
+bool ShowUtils::isPause = true;
+
 FileOperator fop;
 bool show_cloud = false;
 float resolution = 0.03;
@@ -27,6 +29,7 @@ int main(int argc, const char **argv)
     parser.addArgument("-b", "--begin_id", true);
     parser.addArgument("-e", "--end_id", true);
     parser.addArgument("-t", "--traj_type", true);
+    parser.addArgument("-o", "--out_dir", true);
     parser.addArgument("-r", "--resolution");
     parser.addArgument("-s", "--show_cloud");
     parser.parse(argc, argv);
@@ -37,14 +40,13 @@ int main(int argc, const char **argv)
     if(parser.count("show_cloud"))
     {
         show_cloud = parser.get<bool>("show_cloud");
-        viewer = new PCLVisualizer("Labeled Scan");
-        viewer->registerKeyboardCallback(&keyboardEventOccurred, (void*)NULL);
+        su.init("Labeled Scan", &ShowUtils::keyboardEventOccurred);
     }
 
     string input_dir = parser.get("input_dir");
-    string pcd_dir = input_dir+"/PCD";
+    string pcd_dir = input_dir+"/raw_scans";
     string traj_path = input_dir+"/traj_with_timestamp.txt";
-    string labeled_map = input_dir+"/manually_labeled";
+    string labeled_map = input_dir+"/labeled_map";
     TrajType traj_type = (TrajType)parser.get<int>("traj_type");
 
     PCDReader reader(pcd_dir, true); // 使用的是二进制文件
@@ -66,11 +68,11 @@ int main(int argc, const char **argv)
     std::cout << "Start to labeling scans..." << std::endl;
     consoleProgress(0);
 
-    string out_dir = input_dir + "/labeled_scans";
+    string out_dir = parser.get("out_dir");;
     fop.makeDir(out_dir);
 
     int frame_id = begin_id;
-    while(reader.readPointCloud(cloud, frame_id))
+    while(reader.readPointCloud<pcl::PointXYZI>(cloud, frame_id))
     {
         grid.setInputCloud(cloud);
         grid.filter(*cloud_filtered);
@@ -92,8 +94,8 @@ int main(int argc, const char **argv)
 
         if(show_cloud)
         {
-            ShowCloud(cloud, viewer, "curvature", 3);
-            waitForSpace(viewer);
+            su.ShowCloud(cloud, "cloud", "curvature");
+            su.waitForSpace();
         }
 
         pcl::io::savePCDFileBinaryCompressed(out_dir+"/"+to_string(frame_id)+".pcd", *cloud);

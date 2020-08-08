@@ -1,26 +1,19 @@
 #pragma once
-
-#include <common.hpp>
 #include <map>
 #include <pcl/io/pcd_io.h>
-
-std::map<std::string, int> label_map = {
-    {"ceiling", 0},
-    {"floor", 1},
-    {"wall", 2},
-    {"clutter", 3}
-};
-
-int labelid(std::string path)
-{
-    int begin = path.rfind('/');
-    int end = path.rfind('.');
-    std::string id_str = path.substr(begin + 1, end - begin - 1);
-    return label_map[id_str];
-}
+#include <point_cloud/common.hpp>
+#include <utils/common.hpp>
 
 class SemanticMap
 {
+public:
+    std::map<std::string, int> label_map = {
+        {"ceiling", 0},
+        {"floor", 1},
+        {"wall", 2},
+        {"clutter", 3}
+    };
+
 public:
     SemanticMap(PointCloud::Ptr map_cloud, std::string map_folder)
     {
