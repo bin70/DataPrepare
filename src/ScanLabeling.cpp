@@ -7,7 +7,7 @@
 #include <io/TrajIO.hpp>
 #include <io/PCDOperator.hpp>
 #include <build_map/MapManager.hpp>
-#include <visualization/ShowCloud.hpp>
+#include <visualization/ShowUtils.hpp>
 
 // own
 #include <SemanticMap.hpp>
@@ -40,7 +40,7 @@ int main(int argc, const char **argv)
     if(parser.count("show_cloud"))
     {
         show_cloud = parser.get<bool>("show_cloud");
-        su.init("Labeled Scan", &ShowUtils::keyboardEventOccurred);
+        su.init("Labeled Scan", &ShowUtils::keyboardEvent);
     }
 
     string input_dir = parser.get("input_dir");
@@ -85,7 +85,7 @@ int main(int argc, const char **argv)
             if(map.getNearestPoint(point, pointSel))
                 point.curvature = pointSel.curvature;
             else
-                point.curvature = label_map["clutter"];
+                point.curvature = smap.label_map["clutter"];
         }
 
 
@@ -95,7 +95,7 @@ int main(int argc, const char **argv)
         if(show_cloud)
         {
             su.ShowCloud(cloud, "cloud", "curvature");
-            su.waitForSpace();
+            //su.waitSpace();
         }
 
         pcl::io::savePCDFileBinaryCompressed(out_dir+"/"+to_string(frame_id)+".pcd", *cloud);

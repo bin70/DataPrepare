@@ -3,15 +3,21 @@
 #include <pcl/io/pcd_io.h>
 #include <point_cloud/common.hpp>
 #include <utils/common.hpp>
+#include <io/FileOperator.hpp>
+
+enum LABEL_TYPE
+{
+    CEILING, FLOOR, WALL, CLUTTER
+};
 
 class SemanticMap
 {
 public:
     std::map<std::string, int> label_map = {
-        {"ceiling", 0},
-        {"floor", 1},
-        {"wall", 2},
-        {"clutter", 3}
+        {"ceiling", CEILING},
+        {"floor",   FLOOR},
+        {"wall",    WALL},
+        {"clutter", CLUTTER}
     };
 
 public:
@@ -68,7 +74,7 @@ public:
                 continue;
 
             std::string filePath = rootDir + "/" + std::string(ptr->d_name);
-            int label = labelid(filePath);
+            int label = atoi(fop.getFileName(filePath).c_str());
             file_list[label] = filePath;
         }
         return true;
@@ -76,4 +82,5 @@ public:
 
 private:
     std::map<int, std::string> file_list;
+    FileOperator fop;
 };

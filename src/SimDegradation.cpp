@@ -13,7 +13,7 @@
 #include <math/lie_algebra.h>
 #include <math/TransformTool.hpp>
 #include <build_map/MapManager.hpp>
-#include <visualization/ShowCloud.hpp>
+#include <visualization/ShowUtils.hpp>
 
 // own
 #include <SemanticMap.hpp>
@@ -23,7 +23,6 @@ using namespace Eigen;
 using namespace pcl::visualization;
 
 typedef Matrix<double, 6, 1> Vector6d;
-PCLVisualizer *viewer;
 FileOperator fop;
 TransformTool tt;
 
@@ -75,11 +74,11 @@ void saveLabelCloud(string save_dir, PointCloud::Ptr cloud)
     for(int i=0; i<cloud->points.size(); ++i)
     {
         PointType p = cloud->points[i];
-        if((int)p.curvature == label_map["ceiling"])
+        if((LABEL_TYPE)p.curvature == CEILING)
             ceiling_txt << p.x << " " << p.y << " " << p.z << " " <<  p.intensity << std::endl;
-        else if ((int)p.curvature == label_map["floor"])
+        else if ((LABEL_TYPE)p.curvature == FLOOR)
             floor_txt << p.x << " " << p.y << " " << p.z << " " <<  p.intensity << std::endl;
-        else if ((int)p.curvature == label_map["wall"])
+        else if ((LABEL_TYPE)p.curvature == WALL)
             wall_txt << p.x << " " << p.y << " " << p.z << " " <<  p.intensity << std::endl;
         else
             clutter_txt << p.x << " " << p.y << " " << p.z << " " <<  p.intensity << std::endl;
@@ -129,7 +128,7 @@ int main(int argc, const char **argv)
     if(parser.count("show_cloud"))
     {
         show_cloud = parser.get<bool>("show_cloud");
-        su.init("Labeled Local Map", &ShowUtils::keyboardEventOccurred);
+        su.init("Labeled Local Map", &ShowUtils::keyboardEvent);
     }
 
     string input_dir = parser.get("input_dir");
