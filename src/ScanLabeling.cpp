@@ -20,7 +20,7 @@ bool ShowUtils::isPause = true;
 
 FileOperator fop;
 bool show_cloud = false;
-float resolution = 0.03;
+float resolution = 0.1; // 默认10cm网格
 
 int main(int argc, const char **argv)
 {
@@ -52,10 +52,14 @@ int main(int argc, const char **argv)
     PCDReader reader(pcd_dir, true); // 使用的是二进制文件
     TrajIO traj(traj_path, traj_type);
     
-    MapManager map(resolution);
-    SemanticMap smap(map.getMapPtr(), labeled_map);
-    map.update();
+    SemanticMap smap(labeled_map, resolution);
 
+    if(show_cloud)
+    {
+        su.ShowCloud(smap.getMapPtr(), "map", "curvature", 2);
+        su.waitSpace();
+    }
+    
     int begin_id = parser.get<int>("begin_id");
     int end_id = parser.get<int>("end_id");
     
@@ -72,7 +76,7 @@ int main(int argc, const char **argv)
     fop.makeDir(out_dir);
 
     int frame_id = begin_id;
-    while(reader.readPointCloud<pcl::PointXYZI>(cloud, frame_id))
+    while(reader.readPointCloud(cloud, frame_id))
     {
         grid.setInputCloud(cloud);
         grid.filter(*cloud_filtered);
@@ -82,23 +86,24 @@ int main(int argc, const char **argv)
 
         for(auto &point : *cloud)
         {
-            if(map.getNearestPoint(point, pointSel))
+            if(smap.searchPoint(point, pointSel))
                 point.curvature = pointSel.curvature;
             else
-                point.curvature = smap.label_map["clutter"];
+                point.curvature = CLUTTER;
         }
 
+        //pcl::io::savePCDFileBinaryCompressed(out_dir+"/"+to_string(frame_id)+".pcd", *cloud);
 
-        Eigen::Matrix4d m_inv = m.inverse();
-        pcl::transformPointCloud(*cloud, *cloud, m_inv);
+        // Eigen::Matrix4d m_inv = m.inverse();
+        // pcl::transformPointCloud(*cloud, *cloud, m_inv);
 
         if(show_cloud)
         {
-            su.ShowCloud(cloud, "cloud", "curvature");
-            //su.waitSpace();
+            su.ShowCloud(cloud, "frame", "curvature", 4);
+            su.waitSpace();
         }
 
-        pcl::io::savePCDFileBinaryCompressed(out_dir+"/"+to_string(frame_id)+".pcd", *cloud);
+        // pcl::io::savePCDFileBinaryCompressed(out_dir+"/"+to_string(frame_id)+".pcd", *cloud);
 
         frame_id += traj.getFrameGap();
         consoleProgress(frame_id, begin_id, end_id);
