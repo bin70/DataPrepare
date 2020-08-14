@@ -92,10 +92,8 @@ int main(int argc, const char **argv)
                 point.curvature = CLUTTER;
         }
 
-        //pcl::io::savePCDFileBinaryCompressed(out_dir+"/"+to_string(frame_id)+".pcd", *cloud);
-
-        // Eigen::Matrix4d m_inv = m.inverse();
-        // pcl::transformPointCloud(*cloud, *cloud, m_inv);
+        Eigen::Matrix4d m_inv = m.inverse();
+        pcl::transformPointCloud(*cloud, *cloud, m_inv);
 
         if(show_cloud)
         {
@@ -103,7 +101,7 @@ int main(int argc, const char **argv)
             su.waitSpace();
         }
 
-        // pcl::io::savePCDFileBinaryCompressed(out_dir+"/"+to_string(frame_id)+".pcd", *cloud);
+        pcl::io::savePCDFileBinaryCompressed(out_dir+"/"+to_string(frame_id)+".pcd", *cloud);
 
         frame_id += traj.getFrameGap();
         consoleProgress(frame_id, begin_id, end_id);
